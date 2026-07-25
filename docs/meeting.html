@@ -37,6 +37,8 @@
   </head>
   <body>
     <!--Main-->
+
+    <a href="index.html">Go back</a>
     <main class="container mt-4">
       <section class="feature-card">
         <div class="feature-image">
@@ -62,9 +64,147 @@
         <p>Scan the qr code to connect another device</p>
         <!--Put Qr here-->
       </div>
-
+      <!--Side bar-->
       <section class="call-hud">
         <hr />
+          <main class="container-fluid">
+
+        <div class="row">
+
+            <aside class="col-lg-2 sidebar">
+
+                <div class="sidebar-title">
+                    Participants
+                </div>
+
+                <div class="participant active">
+                    <div class="avatar">
+                        J
+                    </div>
+
+                    <div>
+                        <h6>You</h6>
+                        <small>Host</small>
+                    </div>
+                </div>
+
+                <div class="participant">
+                    <div class="avatar">
+                        M
+                    </div>
+
+                    <div>
+                        <h6>Mobile</h6>
+                        <small>Connected</small>
+                    </div>
+                </div>
+                <hr>
+
+                <button class="sidebar-btn">
+                    <i class="bi bi-people"></i>
+                    Participants
+                </button>
+
+                <button class="sidebar-btn">
+                    <i class="bi bi-chat-left-text"></i>
+                    Chat
+                </button>
+
+                <button class="sidebar-btn">
+                    <i class="bi bi-palette"></i>
+                    Themes
+                </button>
+            </aside>
+
+            <!--call-->
+
+              <section class="col-lg-8 meeting-area">
+                <div class="video-container">
+                    <div class="video-placeholder">
+                        <i class="bi bi-camera-video-fill"></i>
+                        <img src="#">
+                    </div>
+
+                    <!-- Remote video -->
+                    <video id="remoteVideo" autoplay playsinline></video>
+                    <!-- Your camera -->
+                    <div class="self-video">
+                        <video id="localVideo" autoplay muted playsinline></video>
+                        <div class="self-label">
+                            You
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+             <aside class="col-lg-2 chat-panel">
+                <div class="chat-header">
+                    <h5>
+                      Team Chat
+                    </h5>
+                </div>
+
+                <div class="chat-body">
+                    <div class="message received">
+                        <strong>MeetGeon</strong>
+                        <p>
+                          Welcome to your meeting.
+                        </p>
+
+                    </div>
+
+                    <div class="message received">
+                        <strong>System</strong>
+                        <p>
+                          Camera permissions required.
+
+                        </p>
+
+                    </div>
+
+                    <div class="message sent">
+                        <strong>You</strong>
+                        <p>
+                           Ready to begin!
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="chat-footer">
+
+                    <input type="text"
+                        class="form-control"
+                        placeholder="Type a message...">
+                </div>
+            </aside>
+        </div>
+    </main>
+    <!--Controls-->
+    <footer class="meeting-controls">
+        <button id="micBtn" class="control-btn">
+            <i class="bi bi-mic-fill"></i>
+        </button>
+
+        <button id="camBtn" class="control-btn">
+            <i class="bi bi-camera-video-fill"></i>
+        </button>
+
+        <button id="screenBtn" class="control-btn">
+            <i class="bi bi-display-fill"></i>
+        </button>
+        <button class="control-btn">
+            <i class="bi bi-emoji-smile-fill"></i>
+        </button>
+        <button class="control-btn">
+            <i class="bi bi-chat-dots-fill"></i>
+        </button>
+        <button class="control-btn">
+            <i class="bi bi-palette-fill"></i>
+        </button>
+        <button class="leave-btn">
+            <i class="bi bi-telephone-x-fill"></i>
+            Leave
       </section>
     </main>
     <footer></footer>
