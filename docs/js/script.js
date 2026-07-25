@@ -30,19 +30,6 @@ console.log(`
 `);
 
 /*Button script*/
-const root = document.querySelector(":root");
-const button = document.querySelector(".button");
-
-button.addEventListener("mousemove", (e) => {
-  const rect = e.target.getBoundingClientRect();
-  const x = ((e.clientX - rect.left) / rect.width) * 100;
-  const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-  root.style.setProperty("--gradient-pos-x", `${x}%`);
-  root.style.setProperty("--gradient-pos-y", `${y}%`);
-});
-
-button.addEventListener("mouseout", () => {
-  root.style.setProperty("--gradient-pos-x", `50%`);
-  root.style.setProperty("--gradient-pos-y", `50%`);
+document.querySelector(".button").addEventListener("click", () => {
+  window.location.href = "meeting.html";
 });

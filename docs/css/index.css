@@ -212,40 +212,6 @@ body {
   }
 }
 
-/*Another button*/
-
-.container1 {
-  display: inline-block;
-
-  margin-top: 25px;
-
-  padding: 2px;
-
-  border-radius: 50px;
-
-  background: linear-gradient(135deg, #10b981, #059669);
-}
-
-.container1 button {
-  padding: 0.7em 1.5em;
-
-  border: none;
-
-  border-radius: 50px;
-
-  background: #0b0f19;
-
-  color: #e2e8f0;
-
-  font-weight: 500;
-
-  cursor: pointer;
-}
-
-.container1:hover button {
-  color: white;
-}
-
 /*Feature sections*/
 
 .feature-card,
