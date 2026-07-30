@@ -1,20 +1,21 @@
 const localVideo = document.getElementById("localVideo");
 const remoteVideo = document.getElementById("remoteVideo");
 
-let localStream;
+if (!localVideo || !remoteVideo) {
+  console.error("No se encontraron los videos.");
+} else {
+  async function startCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
 
-async function startCamera() {
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
-
-    localVideo.srcObject = localStream;
-  } catch (err) {
-    console.error(err);
-    alert("Camera permission denied.");
+      localVideo.srcObject = stream;
+    } catch (err) {
+      console.error(err);
+    }
   }
-}
 
-startCamera();
+  startCamera();
+}
