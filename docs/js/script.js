@@ -31,5 +31,5 @@ console.log(`
 
 /*Button script*/
 document.querySelector(".button").addEventListener("click", () => {
-  window.location.href = "#"; //meeting.html
+  window.location.href = "meeting.html"; //meeting.html
 });
