@@ -1,27 +1,57 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Meetgeon Mobile</title>
+    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+
+    <!-- PeerJS -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <!-- Script Móvil -->
+    <script src="js/mobile.js" defer></script>
+
+    <style>
+      body {
+        background-color: #121212;
+        color: #ffffff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      #remoteVideo {
+        width: 100%;
+        max-width: 450px;
+        border-radius: 12px;
+        background-color: #000;
+      }
+    </style>
   </head>
+  <body class="text-center p-3">
+    <div class="container">
+      <h3 id="status" class="mb-3">Listo para unirte a la reunión</h3>
+      <p class="text-secondary">
+        Presiona el botón para dar permisos e iniciar el video.
+      </p>
 
-  <script src="js/mobile.js" defer></script>
-  <body class="bg-dark text-white text-center p-4">
-    <h2 id="status">Connecting...</h2>
-    <video
-      id="remoteVideo"
-      autoplay
-      playsinline
-      style="width: 100%; max-width: 400px; border-radius: 10px"
-      class="mt-3"
-    ></video>
+      <!-- Botón para iniciar reproducción con gesto de usuario -->
+      <button id="startBtn" class="btn btn-primary btn-lg my-3">
+        <i class="bi bi-telephone-fill me-2"></i> Unirse a la llamada
+      </button>
 
-    <script src="js/mobile.js"></script>
+      <div class="mt-3">
+        <video id="remoteVideo" autoplay playsinline></video>
+      </div>
+    </div>
   </body>
 </html>

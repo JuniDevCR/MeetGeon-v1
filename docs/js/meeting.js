@@ -7,62 +7,88 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let localStream = null;
 
-  // 1. Iniciar cámara local de la PC
+  // 1. Obtener la cámara local de la PC
   try {
     localStream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true,
     });
-    if (localVideo) localVideo.srcObject = localStream;
+    if (localVideo) {
+      localVideo.srcObject = localStream;
+    }
   } catch (err) {
-    console.error("No se pudo acceder a la cámara/micrófono de la PC:", err);
+    console.error("No se pudo acceder a la cámara o micrófono de la PC:", err);
+    if (statusTitle)
+      statusTitle.innerText = "Error: Por favor concede permisos de cámara";
   }
 
-  // 2. Inicializar PeerJS (Usa los servidores gratuitos de PeerJS en la nube)
-  const peer = new Peer();
+  // 2. Inicializar PeerJS con servidores STUN de Google
+  const peer = new Peer({
+    config: {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+      ],
+    },
+  });
 
   peer.on("open", (peerId) => {
-    console.log("PC Peer ID:", peerId);
+    console.log("PC Peer ID generado:", peerId);
 
-    // Generar la URL apuntando a la dirección real de GitHub Pages
-    // Detecta automáticamente si estás en github.io o probando localmente
-    const currentUrl = window.location.href.substring(
+    // Detecta la URL base exacta de GitHub Pages (o entorno local)
+    const currentFolder = window.location.href.substring(
       0,
       window.location.href.lastIndexOf("/"),
     );
-    const callUrl = `${currentUrl}/mobile.html?peer=${peerId}`;
+    const callUrl = `${currentFolder}/mobile.html?peer=${peerId}`;
 
-    console.log("URL del QR:", callUrl);
+    console.log("URL codificada en el QR:", callUrl);
 
-    // Limpiar y dibujar el QR
+    // Limpiar y dibujar el código QR
     if (qrContainer) {
       qrContainer.innerHTML = "";
       new QRCode(qrContainer, {
         text: callUrl,
         width: 180,
         height: 180,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H,
       });
     }
   });
 
-  // 3. Esperar la llamada entrante del celular
+  // 3. Responder cuando el celular realice la llamada
   peer.on("call", (call) => {
-    if (statusTitle) statusTitle.innerText = "Connecting with mobile...";
+    if (statusTitle)
+      statusTitle.innerText = "Conectando con el dispositivo móvil...";
 
-    // Responder enviando el audio/video de la PC
+    // Responder enviando la señal de video/audio de la PC
     call.answer(localStream);
 
-    // Recibir el audio/video del celular
+    // Recibir la señal de video/audio del teléfono
     call.on("stream", (remoteStream) => {
-      if (remoteVideo) remoteVideo.srcObject = remoteStream;
-      if (statusTitle) statusTitle.innerText = "Connected!";
-      if (mobileStatus) mobileStatus.innerText = "Connected";
-      if (qrContainer) qrContainer.style.display = "none"; // Ocultar QR al conectar
+      if (remoteVideo) {
+        remoteVideo.srcObject = remoteStream;
+        remoteVideo.play();
+      }
+      if (statusTitle) statusTitle.innerText = "¡Participante conectado!";
+      if (mobileStatus) mobileStatus.innerText = "Conectado";
+      if (qrContainer) qrContainer.style.display = "none"; // Ocultar el QR tras conectar
     });
 
     call.on("close", () => {
-      if (statusTitle) statusTitle.innerText = "Participant disconnected";
-      if (mobileStatus) mobileStatus.innerText = "Disconnected";
+      if (statusTitle) statusTitle.innerText = "Participante desconectado";
+      if (mobileStatus) mobileStatus.innerText = "Desconectado";
     });
+
+    call.on("error", (err) => {
+      console.error("Error en la llamada:", err);
+      if (statusTitle) statusTitle.innerText = "Error en la conexión";
+    });
+  });
+
+  peer.on("error", (err) => {
+    console.error("Error en el Peer de la PC:", err);
   });
 });
