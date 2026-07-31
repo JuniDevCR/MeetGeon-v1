@@ -1,4 +1,3 @@
-// Variables globales
 let localStream = null;
 
 // Obtener elementos
