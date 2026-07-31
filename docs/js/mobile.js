@@ -1,22 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
   const statusText = document.getElementById("status");
-  const subStatus = document.getElementById("sub-status");
   const remoteVideo = document.getElementById("remoteVideo");
   const startBtn = document.getElementById("startBtn");
 
-  // Controles móviles
   const controlsBar = document.getElementById("controlsBar");
   const mobileMicBtn = document.getElementById("mobileMicBtn");
   const mobileCamBtn = document.getElementById("mobileCamBtn");
   const mobileHangupBtn = document.getElementById("mobileHangupBtn");
 
   let localStream = null;
+  let activeCall = null;
 
   const urlParams = new URLSearchParams(window.location.search);
   const targetPeerId = urlParams.get("peer");
 
   if (!targetPeerId) {
-    statusText.innerText = "Error: Enlace inválido.";
+    statusText.innerText = "Error: Enlace de reunión no válido.";
     if (startBtn) startBtn.style.display = "none";
     return;
   }
@@ -26,13 +25,16 @@ document.addEventListener("DOMContentLoaded", () => {
     statusText.innerText = "Iniciando cámara y micrófono...";
 
     try {
-      // 1. Obtener la cámara/micrófono del teléfono
+      // 1. Obtener stream local del celular
       localStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user" },
         audio: true,
       });
 
-      statusText.innerText = "Conectando con el servidor...";
+      // Mostrar inmediatamente la barra de controles móviles
+      if (controlsBar) controlsBar.style.display = "flex";
+
+      statusText.innerText = "Conectando...";
 
       const peer = new Peer({
         config: {
@@ -44,51 +46,43 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       peer.on("open", () => {
-        statusText.innerText = "Llamando a la PC...";
+        statusText.innerText = "Llamando a la sala...";
 
-        const call = peer.call(targetPeerId, localStream);
+        activeCall = peer.call(targetPeerId, localStream);
 
-        call.on("stream", (remoteStream) => {
-          statusText.innerText = "¡Conectado a la reunión!";
-          if (subStatus) subStatus.style.display = "none";
-          if (controlsBar) controlsBar.style.display = "flex"; // Mostrar la barra de botones
-
+        activeCall.on("stream", (remoteStream) => {
+          statusText.innerText = "¡Conectado!";
           if (remoteVideo) {
             remoteVideo.srcObject = remoteStream;
             remoteVideo.play();
           }
         });
 
-        call.on("close", () => {
+        activeCall.on("close", () => {
           statusText.innerText = "Llamada finalizada";
           if (controlsBar) controlsBar.style.display = "none";
         });
-
-        // Colgar llamada
-        if (mobileHangupBtn) {
-          mobileHangupBtn.addEventListener("click", () => {
-            call.close();
-            window.location.reload();
-          });
-        }
       });
     } catch (err) {
       console.error("Error al acceder a los medios:", err);
-      statusText.innerText = "Acceso denegado a la cámara o micrófono.";
+      statusText.innerText = "Permisos de cámara o micrófono denegados.";
       startBtn.style.display = "inline-block";
+      if (controlsBar) controlsBar.style.display = "none";
     }
   });
 
-  // --- CONTROLES MÓVILES (MIC Y CÁMARA) ---
+  // --- MANEJO DE BOTONES MÓVILES ---
 
+  // Micrófono Móvil
   if (mobileMicBtn) {
     mobileMicBtn.addEventListener("click", () => {
       if (!localStream) return;
       const audioTrack = localStream.getAudioTracks()[0];
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
-        mobileMicBtn.classList.toggle("btn-danger", !audioTrack.enabled);
-        mobileMicBtn.classList.toggle("btn-secondary", audioTrack.enabled);
+        mobileMicBtn.className = audioTrack.enabled
+          ? "btn btn-secondary rounded-circle p-3"
+          : "btn btn-danger rounded-circle p-3";
         const icon = mobileMicBtn.querySelector("i");
         if (icon) {
           icon.className = audioTrack.enabled
@@ -99,14 +93,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Cámara Móvil
   if (mobileCamBtn) {
     mobileCamBtn.addEventListener("click", () => {
       if (!localStream) return;
       const videoTrack = localStream.getVideoTracks()[0];
       if (videoTrack) {
         videoTrack.enabled = !videoTrack.enabled;
-        mobileCamBtn.classList.toggle("btn-danger", !videoTrack.enabled);
-        mobileCamBtn.classList.toggle("btn-secondary", videoTrack.enabled);
+        mobileCamBtn.className = videoTrack.enabled
+          ? "btn btn-secondary rounded-circle p-3"
+          : "btn btn-danger rounded-circle p-3";
         const icon = mobileCamBtn.querySelector("i");
         if (icon) {
           icon.className = videoTrack.enabled
@@ -116,4 +112,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // Colgar Móvil
+  if (mobileHangupBtn) {
+    mobileHangupBtn.addEventListener("click", () => {
+      if (activeCall) activeCall.close();
+      window.location.reload();
+    });
+  }
 });
+s;

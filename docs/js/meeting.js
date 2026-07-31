@@ -5,7 +5,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   const statusTitle = document.getElementById("status-title");
   const mobileStatus = document.getElementById("mobile-status");
 
+  // Botones de control en la PC
+  const micBtn = document.getElementById("micBtn");
+  const camBtn = document.getElementById("camBtn");
+  const leaveBtn = document.querySelector(".leave-btn"); // Botón de colgar en tu HTML
+
   let localStream = null;
+  let currentCall = null;
 
   // 1. Obtener la cámara local de la PC
   try {
@@ -13,16 +19,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       video: true,
       audio: true,
     });
-    if (localVideo) {
-      localVideo.srcObject = localStream;
-    }
+    if (localVideo) localVideo.srcObject = localStream;
   } catch (err) {
     console.error("No se pudo acceder a la cámara o micrófono de la PC:", err);
     if (statusTitle)
-      statusTitle.innerText = "Error: Por favor concede permisos de cámara";
+      statusTitle.innerText = "Error: Concede permisos de cámara";
   }
 
-  // 2. Inicializar PeerJS con servidores STUN de Google
+  // 2. Inicializar PeerJS
   const peer = new Peer({
     config: {
       iceServers: [
@@ -33,40 +37,29 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   peer.on("open", (peerId) => {
-    console.log("PC Peer ID generado:", peerId);
-
-    // Detecta la URL base exacta de GitHub Pages (o entorno local)
     const currentFolder = window.location.href.substring(
       0,
       window.location.href.lastIndexOf("/"),
     );
     const callUrl = `${currentFolder}/mobile.html?peer=${peerId}`;
 
-    console.log("URL codificada en el QR:", callUrl);
-
-    // Limpiar y dibujar el código QR
     if (qrContainer) {
       qrContainer.innerHTML = "";
       new QRCode(qrContainer, {
         text: callUrl,
         width: 180,
         height: 180,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H,
       });
     }
   });
 
-  // 3. Responder cuando el celular realice la llamada
+  // 3. Responder llamada entrante
   peer.on("call", (call) => {
-    if (statusTitle)
-      statusTitle.innerText = "Conectando con el dispositivo móvil...";
+    currentCall = call;
+    if (statusTitle) statusTitle.innerText = "Conectando con el móvil...";
 
-    // Responder enviando la señal de video/audio de la PC
     call.answer(localStream);
 
-    // Recibir la señal de video/audio del teléfono
     call.on("stream", (remoteStream) => {
       if (remoteVideo) {
         remoteVideo.srcObject = remoteStream;
@@ -74,66 +67,59 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       if (statusTitle) statusTitle.innerText = "¡Participante conectado!";
       if (mobileStatus) mobileStatus.innerText = "Conectado";
-      if (qrContainer) qrContainer.style.display = "none"; // Ocultar el QR tras conectar
+      if (qrContainer) qrContainer.style.display = "none";
     });
 
     call.on("close", () => {
       if (statusTitle) statusTitle.innerText = "Participante desconectado";
       if (mobileStatus) mobileStatus.innerText = "Desconectado";
-    });
-
-    call.on("error", (err) => {
-      console.error("Error en la llamada:", err);
-      if (statusTitle) statusTitle.innerText = "Error en la conexión";
+      if (remoteVideo) remoteVideo.srcObject = null;
     });
   });
 
-  peer.on("error", (err) => {
-    console.error("Error en el Peer de la PC:", err);
-  });
+  // --- CONTROLES DE LA PC ---
+
+  // Activar/Desactivar Micrófono PC
+  if (micBtn) {
+    micBtn.addEventListener("click", () => {
+      if (!localStream) return;
+      const audioTrack = localStream.getAudioTracks()[0];
+      if (audioTrack) {
+        audioTrack.enabled = !audioTrack.enabled;
+        micBtn.style.backgroundColor = audioTrack.enabled ? "" : "#dc3545";
+        const icon = micBtn.querySelector("i");
+        if (icon) {
+          icon.className = audioTrack.enabled
+            ? "bi bi-mic-fill"
+            : "bi bi-mic-mute-fill";
+        }
+      }
+    });
+  }
+
+  // Activar/Desactivar Cámara PC
+  if (camBtn) {
+    camBtn.addEventListener("click", () => {
+      if (!localStream) return;
+      const videoTrack = localStream.getVideoTracks()[0];
+      if (videoTrack) {
+        videoTrack.enabled = !videoTrack.enabled;
+        camBtn.style.backgroundColor = videoTrack.enabled ? "" : "#dc3545";
+        const icon = camBtn.querySelector("i");
+        if (icon) {
+          icon.className = videoTrack.enabled
+            ? "bi bi-camera-video-fill"
+            : "bi bi-camera-video-off-fill";
+        }
+      }
+    });
+  }
+
+  // Botón de Colgar en PC
+  if (leaveBtn) {
+    leaveBtn.addEventListener("click", () => {
+      if (currentCall) currentCall.close();
+      window.location.reload();
+    });
+  }
 });
-
-// --- CONTROL DE MICRÓFONO Y CÁMARA (AGREGAR AL FINAL DE meeting.js) ---
-
-const micBtn = document.getElementById("micBtn");
-const camBtn = document.getElementById("camBtn");
-
-// Alternar Micrófono
-if (micBtn) {
-  micBtn.addEventListener("click", () => {
-    if (!localStream) return;
-    const audioTrack = localStream.getAudioTracks()[0];
-    if (audioTrack) {
-      audioTrack.enabled = !audioTrack.enabled;
-
-      // Cambiar la interfaz del botón
-      micBtn.classList.toggle("btn-danger", !audioTrack.enabled);
-      const icon = micBtn.querySelector("i");
-      if (icon) {
-        icon.className = audioTrack.enabled
-          ? "bi bi-mic-fill"
-          : "bi bi-mic-mute-fill";
-      }
-    }
-  });
-}
-
-// Alternar Cámara
-if (camBtn) {
-  camBtn.addEventListener("click", () => {
-    if (!localStream) return;
-    const videoTrack = localStream.getVideoTracks()[0];
-    if (videoTrack) {
-      videoTrack.enabled = !videoTrack.enabled;
-
-      // Cambiar la interfaz del botón
-      camBtn.classList.toggle("btn-danger", !videoTrack.enabled);
-      const icon = camBtn.querySelector("i");
-      if (icon) {
-        icon.className = videoTrack.enabled
-          ? "bi bi-camera-video-fill"
-          : "bi bi-camera-video-off-fill";
-      }
-    }
-  });
-}
