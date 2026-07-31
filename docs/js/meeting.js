@@ -92,3 +92,48 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Error en el Peer de la PC:", err);
   });
 });
+
+// --- CONTROL DE MICRÓFONO Y CÁMARA (AGREGAR AL FINAL DE meeting.js) ---
+
+const micBtn = document.getElementById("micBtn");
+const camBtn = document.getElementById("camBtn");
+
+// Alternar Micrófono
+if (micBtn) {
+  micBtn.addEventListener("click", () => {
+    if (!localStream) return;
+    const audioTrack = localStream.getAudioTracks()[0];
+    if (audioTrack) {
+      audioTrack.enabled = !audioTrack.enabled;
+
+      // Cambiar la interfaz del botón
+      micBtn.classList.toggle("btn-danger", !audioTrack.enabled);
+      const icon = micBtn.querySelector("i");
+      if (icon) {
+        icon.className = audioTrack.enabled
+          ? "bi bi-mic-fill"
+          : "bi bi-mic-mute-fill";
+      }
+    }
+  });
+}
+
+// Alternar Cámara
+if (camBtn) {
+  camBtn.addEventListener("click", () => {
+    if (!localStream) return;
+    const videoTrack = localStream.getVideoTracks()[0];
+    if (videoTrack) {
+      videoTrack.enabled = !videoTrack.enabled;
+
+      // Cambiar la interfaz del botón
+      camBtn.classList.toggle("btn-danger", !videoTrack.enabled);
+      const icon = camBtn.querySelector("i");
+      if (icon) {
+        icon.className = videoTrack.enabled
+          ? "bi bi-camera-video-fill"
+          : "bi bi-camera-video-off-fill";
+      }
+    }
+  });
+}
