@@ -1,3 +1,0 @@
-// Iniciar todo
-
-startCamera();
