@@ -1,4 +1,4 @@
-# 🌌 MeetGeon
+# 🌌 MeetGeon V1
 
 > **The free and modern platform for connecting people.**
 
