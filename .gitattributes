@@ -1,0 +1,5 @@
+# Indicar a GitHub que la carpeta docs contiene código real y no solo documentación
+docs/** linguist-documentation=false
+
+# Asegurar que los archivos JS de la carpeta docs sean detectados
+docs/js/*.js linguist-detectable=true
